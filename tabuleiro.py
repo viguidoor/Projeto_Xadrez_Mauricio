@@ -46,9 +46,9 @@ def criar_tabuleiro() -> list:
                             # Peças Pretas
             if(i == 0 and j == 0 or i == 0 and j == 7):
                 tabuleiro[i][j] = "t"
-            if(i == 0 and j == 1 or i == 0 and j == 6):
+            if(i == 0 and j == 2 or i == 0 and j == 5):
                 tabuleiro[i][j] = "b"
-            if(i == 0 and j == 2 or i == 0 and j == 5):    
+            if(i == 0 and j == 1 or i == 0 and j == 6):    
                 tabuleiro[i][j] = "c"
             if(i == 0 and j == 3):                 
                 tabuleiro[i][j] = "q"
@@ -60,9 +60,9 @@ def criar_tabuleiro() -> list:
                            # Peças Brancas
             if(i == 7 and j == 0 or i == 7 and j == 7):
                 tabuleiro[i][j] = "T"
-            if(i == 7 and j == 1 or i == 7 and j == 6):    
+            if(i == 7 and j == 2 or i == 7 and j == 5):    
                 tabuleiro[i][j] = "B"     
-            if(i == 7 and j == 2 or i == 7 and j == 5):
+            if(i == 7 and j == 1 or i == 7 and j == 6):
                 tabuleiro[i][j] = "C"                  
             if(i == 7 and j == 3):
                 tabuleiro[i][j] = "Q"
@@ -73,61 +73,23 @@ def criar_tabuleiro() -> list:
     return tabuleiro
 
 def mostrar_tabuleiro(tabuleiro: list) -> None:
-    """
-    Recebe a função criar_tabuleiro e imprime o tabuleiro 8x8
-    com as peças nas posições iniciais oficiais.
+    """Imprime o tabuleiro usando símbolos das peças e casas vazias."""
+    simbolos = {
+        "R": "♔", "Q": "♕", "T": "♖", "B": "♗", "C": "♘", "P": "♙",
+        "r": "♚", "q": "♛", "t": "♜", "b": "♝", "c": "♞", "p": "♟",
+    }
 
-    Parâmetros:
-       list: Uma matriz 8x8 (lista de listas) contendo as peças 
-             nas posições padrão e '#' nas casas vazias.
-
-    Retorna:
-        None: Apenas imprime o tabuleiro no console.
-
-          
-    """
-                       # Percorrendo a matriz e alterando as letras das peças por emojis correspondentes
-    for i in range(len(tabuleiro)):
+    print("    0  1  2  3  4  5  6  7")
+    for i in range(8):
         linha_impressao = []
-
-        
-        for j in range(len(tabuleiro[i])):
-                       # Definindo as casas brancas e pretas
-            if(tabuleiro[i][j] == "#"):
-                if((i + j) % 2 == 0):
-                    linha_impressao.append("\u2b1c")
-                else:
-                    linha_impressao.append("\u2B1B")   
-
-                      # Alterando as peças brancas
-            elif(tabuleiro[i][j] == "T"):
-                linha_impressao.append("\u265C ")
-            elif(tabuleiro[i][j] == "C"):       
-                linha_impressao.append("\u265E ")
-            elif(tabuleiro[i][j] == "B"):       
-                linha_impressao.append("\u265D ")
-            elif(tabuleiro[i][j] == "Q"):            
-                linha_impressao.append("\u265B ")
-            elif(tabuleiro[i][j] == "R"):   
-                linha_impressao.append("\u265A ")
-            elif(tabuleiro[i][j] == "P"):   
-                linha_impressao.append("\u265F ")
-
-                      # Alterando as peças pretas 
-            elif(tabuleiro[i][j] == "t"):            
-                linha_impressao.append("\u2656 ")        
-            elif(tabuleiro[i][j] == "c"):                
-                linha_impressao.append("\u2658 ")             
-            elif(tabuleiro[i][j] == "b"):            
-                linha_impressao.append("\u2657 ")         
-            elif(tabuleiro[i][j] == "q"):            
-                linha_impressao.append("\u2655 ")         
-            elif(tabuleiro[i][j] == "r"):            
-                linha_impressao.append("\u2654 ")         
-            elif(tabuleiro[i][j] == "p"):            
-                linha_impressao.append("\u2659 ")  
-    
-        print(" ".join(linha_impressao))
+        for j in range(8):
+            peca = tabuleiro[i][j]
+            if peca == "#":
+                simbolo = "□" if (i + j) % 2 == 0 else "■"
+            else:
+                simbolo = simbolos[peca]
+            linha_impressao.append(simbolo)
+        print(f"{i}   " + "  ".join(linha_impressao))
 
 
 def posicao_valida(linha: int, coluna: int) -> bool:
@@ -142,38 +104,45 @@ def posicao_valida(linha: int, coluna: int) -> bool:
     else:
         return False
 
-def mover_peca(tabuleiro: list, l_inicial: int, c_inicial: int, l_final: int, c_final: int) -> list:
-    """
-    Move um peça para outro quadrado, com base na sua posição inicial e posição final
+def mover_peca(tabuleiro: list, l_inicial: int, c_inicial: int,
+               l_final: int, c_final: int) -> list:
+    """Move uma peça, preservando a assinatura original do projeto.
 
-    Parâmetros:                                                 
-       list: Uma matriz 8x8 (lista de listas) contendo as peças 
-             nas posições padrão e '#' nas casas vazias.   
-       int:  Posição inicial onde a peça se encontra, e final aonde o usuario deseja coloca-la           
-    Retorna:                                                    
-        list: Uma matriz 8x8 (lista de listas) contendo as peças
-        nas posições atualizadas com base nos indices.             
-    
-    
+    Retorna o próprio tabuleiro. Em caso de movimento inválido, não o altera.
+    Nesta etapa, valida o rei e cavalo e impede capturas da mesma cor.
+    As regras das outras peças serão integradas por seus responsáveis.
     """
-    
-    if (posicao_valida(l_inicial, c_inicial) == True and posicao_valida(l_final, c_final) == True):
-        tabuleiro[l_final][c_final] = tabuleiro[l_inicial][c_inicial]
+    # Importação local para evitar dependência circular entre os módulos.
+    from capturas import (movimento_rei, movimento_cavalo,
+                          mesma_cor, capturar_peca)
+
+    if not posicao_valida(l_inicial, c_inicial):
+        return tabuleiro
+    if not posicao_valida(l_final, c_final):
+        return tabuleiro
+
+    origem = (l_inicial, c_inicial)
+    destino = (l_final, c_final)
+    if origem == destino:
+        return tabuleiro
+
+    peca = tabuleiro[l_inicial][c_inicial]
+    peca_no_destino = tabuleiro[l_final][c_final]
+
+    if peca == "#":
+        return tabuleiro
+    if mesma_cor(peca, peca_no_destino):
+        return tabuleiro
+
+    if peca.upper() == "R" and not movimento_rei(origem, destino):
+        return tabuleiro
+    if peca.upper() == "C" and not movimento_cavalo(origem, destino):
+        return tabuleiro
+
+    if peca_no_destino != "#":
+        capturar_peca(tabuleiro, origem, destino)
+    else:
+        tabuleiro[l_final][c_final] = peca
         tabuleiro[l_inicial][c_inicial] = "#"
-    return tabuleiro    
 
-
-
-
-
-
-
-
-    
-                      
-
-
-
-
-
-
+    return tabuleiro
